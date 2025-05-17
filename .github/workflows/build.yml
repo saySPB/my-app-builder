@@ -1,0 +1,23 @@
+name: Build App
+on: [workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build APK (Android)
+        if: contains(inputs.target_os, 'android')
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease
+          mv app/build/outputs/apk/release/*.apk app.apk
+      - name: Generate QML (Aurora OS)
+        if: contains(inputs.target_os, 'aurora')
+        run: |
+          echo "Конвертация в QML..." > template.qml
+      - uses: actions/upload-artifact@v3
+        with:
+          name: app-build
+          path: |
+            app.apk
+            template.qml
